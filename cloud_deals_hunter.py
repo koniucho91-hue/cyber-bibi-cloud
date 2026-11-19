@@ -135,7 +135,26 @@ def scan_olx(sent_urls):
             continue
     return deals_found
 
+# Dodajemy wbudowany miniserwer HTTP dla darmowego tieru Web Service w chmurze
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/plain; charset=utf-8")
+        self.end_headers()
+        self.wfile.write("CYBER BIBI • Łowca Okazji 24/7 w Chmurze DZIAŁA STABILNIE!".encode("utf-8"))
+    def log_message(self, format, *args):
+        pass
+
+def start_http_health_server():
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(("0.0.0.0", port), HealthHandler)
+    server.serve_forever()
+
 def main():
+    threading.Thread(target=start_http_health_server, daemon=True).start()
     print("=" * 60)
     print("CYBER BIBI • AUTONOMICZNY WORKER CHMUROWY 24/7 DLA TOMASZA")
     print(f"Kanał powiadomień: https://ntfy.sh/{NTFY_TOPIC}")
